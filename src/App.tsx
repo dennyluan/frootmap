@@ -3,8 +3,7 @@ import './assets/App.css';
 
 import GoogleMapReact from 'google-map-react';
 
-
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY
+// const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY
 
 function App() {
 
@@ -26,7 +25,7 @@ function App() {
       <body>
         <p>Map</p>
         <GoogleMapReact
-          bootstrapURLKeys={{ key: GOOGLE_API_KEY }}
+          // bootstrapURLKeys={{ key: GOOGLE_API_KEY }}
           defaultCenter={props.center}
           defaultZoom={props.zoom}
         >
