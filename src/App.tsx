@@ -26,7 +26,7 @@ function App() {
       <body>
         <p>Map</p>
         <GoogleMapReact
-          // bootstrapURLKeys={{ key: GOOGLE_API_KEY }}
+          bootstrapURLKeys={{ key: GOOGLE_API_KEY }}
           defaultCenter={props.center}
           defaultZoom={props.zoom}
         >
