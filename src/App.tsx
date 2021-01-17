@@ -4,10 +4,7 @@ import './assets/App.css';
 import GoogleMapReact from 'google-map-react';
 
 function App() {
-  let googleKey : string = ((process.env.NODE_ENV == 'production') ?
-    process.env.GOOGLE_API_KEY :
-    process.env.REACT_APP_GOOGLE_API_KEY) || ''
-
+  let googleKey : string = process.env.REACT_APP_GOOGLE_API_KEY || ''
   let [coords, setCoords] = useState( {lat: 21.284084348268202,lng: -157.7855795839304} );
   let [zoom, setZoom] = useState(16);
 
