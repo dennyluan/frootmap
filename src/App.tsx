@@ -1,20 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './assets/App.css';
 
 import GoogleMapReact from 'google-map-react';
 
-// const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY
-
 function App() {
+  let googleKey : string = ((process.env.NODE_ENV == 'production') ?
+    process.env.GOOGLE_API_KEY :
+    process.env.REACT_APP_GOOGLE_API_KEY) || ''
 
-  const props = {
-    center: {
-      lat: 59.95,
-      lng: 30.33
-    },
-    zoom: 11
-  };
+  let [coords, setCoords] = useState( {lat: 21.284084348268202,lng: -157.7855795839304} );
+  let [zoom, setZoom] = useState(16);
 
+  interface Position {
+    coords: {
+      latitude : number,
+      longitude : number
+    }
+  }
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position: Position) => {
+          setCoords({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          })
+        },
+        () => {
+          console.log("error")
+        }
+      )
+    }
+  }, [])
 
   return (
     <div className="App">
@@ -22,15 +40,14 @@ function App() {
         <h1>Frootmap</h1>
       </header>
 
-      <body>
-        <p>Map</p>
+      <div className="body">
         <GoogleMapReact
-          // bootstrapURLKeys={{ key: GOOGLE_API_KEY }}
-          defaultCenter={props.center}
-          defaultZoom={props.zoom}
+          bootstrapURLKeys={{key: googleKey}}
+          center={coords}
+          zoom={zoom}
         >
         </GoogleMapReact>
-      </body>
+      </div>
     </div>
   );
 }
