@@ -6,14 +6,14 @@ import { useModal } from "./utils/useModal";
 
 import GoogleMapReact from "google-map-react";
 
-interface Coords {
+interface ICoords {
   lat: number,
   lng: number
 }
 
 interface IPin {
   text: string,
-  coords: Coords
+  coords: ICoords
 }
 
 function App() {
@@ -23,8 +23,8 @@ function App() {
   }
 
   let googleKey: string = process.env.REACT_APP_GOOGLE_API_KEY || "";
-  let [viewCoords, setViewCoords] = useState<Coords>(initialCoords);
-  let [pinCoords, setPinCoords] = useState<Coords>({} as Coords);
+  let [viewCoords, setViewCoords] = useState<ICoords>(initialCoords);
+  let [pinCoords, setPinCoords] = useState<ICoords>();
   let [zoom, setZoom] = useState<number>(16);
   let [pins, setPins] = useState<IPin[]>([]);
   let { isShown, toggle } = useModal();
@@ -64,19 +64,18 @@ function App() {
   }
 
   const createPin = (fruit: string) => {
-    console.log("dog", fruit)
-
-    let pin : IPin = {
-      coords: {
-        lat: pinCoords.lat,
-        lng: pinCoords.lng,
-      },
-      text: fruit
+    if (pinCoords && pinCoords.lat) {
+      let pin : IPin = {
+        coords: {
+          lat: pinCoords.lat,
+          lng: pinCoords.lng,
+        },
+        text: fruit
+      }
+      const newPins = [...pins, pin] || [pins]
+      setPins(newPins);
+      localStorage.setItem('localPins', JSON.stringify(newPins));
     }
-
-    const newPins = [...pins, pin] || [pins]
-    setPins(newPins);
-    localStorage.setItem('localPins', JSON.stringify(newPins));
   }
 
   const clearPins = () =>{
