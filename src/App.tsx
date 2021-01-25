@@ -1,20 +1,15 @@
 import React, { useEffect, useState, MouseEvent } from "react";
-import "./assets/App.css";
+import "./assets/App.scss";
 import { PinMarker } from "./components/PinMarker";
-import { PinModal } from "./components/PinModal";
-import { useModal } from "./utils/useModal";
+import { PinFormModal } from "./components/PinFormModal";
+import { PinInfoModal } from "./components/PinInfoModal";
+
+import { ICoords, IPin } from "./models/pins";
+import { useModal, usePinModal } from "./utils/useModal";
 
 import GoogleMapReact from "google-map-react";
+import { v4 as uuidv4 } from 'uuid';
 
-interface ICoords {
-  lat: number,
-  lng: number
-}
-
-interface IPin {
-  text: string,
-  coords: ICoords
-}
 
 function App() {
   const initialCoords = {
@@ -27,7 +22,9 @@ function App() {
   let [pinCoords, setPinCoords] = useState<ICoords>();
   let [zoom, setZoom] = useState<number>(16);
   let [pins, setPins] = useState<IPin[]>([]);
+
   let { isShown, toggle } = useModal();
+  let { pinInfoModal, setPinInfoModal } = usePinModal();
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -47,41 +44,40 @@ function App() {
     loadPins()
   }, []);
 
-  useEffect(()=>{
-    // localStorage.setItem('localPins', JSON.stringify(pins));
-  }, [pins])
-
   function loadPins() {
-    let localPins : any = localStorage.getItem('localPins')
-    let localPinsParsed = JSON.parse(localPins)
+    let localPins : string = localStorage.getItem('localPins') || '[]'
 
-    if (localPins) {
-      let newPins = pins
-      let collected = newPins.concat(localPinsParsed)
+    let localPinsParsed : IPin[] = JSON.parse(localPins)
+
+    if (localPinsParsed) {
+      let newPins : IPin[] = pins
+      let collected : IPin[] = newPins.concat(localPinsParsed)
       setPins(collected)
     }
-    // console.log('localPins', localStorage.getItem("localPins"))
   }
 
   const createPin = (fruit: string) => {
     if (pinCoords && pinCoords.lat) {
+      let id = uuidv4()
       let pin : IPin = {
         coords: {
           lat: pinCoords.lat,
           lng: pinCoords.lng,
         },
+        id: id,
         text: fruit
       }
-      const newPins = [...pins, pin] || [pins]
+      const newPins : IPin[] = [...pins, pin] || [pins]
+
       setPins(newPins);
       localStorage.setItem('localPins', JSON.stringify(newPins));
     }
   }
 
-  const clearPins = () =>{
-    console.log("clearing pins")
+  const clearPins = () : void => {
     localStorage.removeItem("localPins")
     setPins([])
+    toggle()
   }
 
   const handleClick = ({
@@ -105,14 +101,22 @@ function App() {
   };
 
   function renderPinMarkers() {
+    if (pins == []) return
     return pins.map((pin, index) => (
-      <PinMarker key={index} lat={pin.coords.lat} lng={pin.coords.lng} text={pin.text} />
+      <PinMarker
+        // coords={pin.coords}
+        lat={pin.coords.lat}
+        lng={pin.coords.lng}
+        text={pin.text}
+        id={pin.id}
+        key={index}
+      />
     ));
   }
 
   return (
     <div className="App">
-      <header className="App-header py-2">
+      {/*<header className="App-header py-2">
         <h1>Frootmap</h1>
 
         <div className="row">
@@ -132,7 +136,7 @@ function App() {
             </button>
           }
         </div>
-      </header>
+      </header>*/}
 
       <div className="body">
         <GoogleMapReact
@@ -144,10 +148,15 @@ function App() {
           {renderPinMarkers()}
         </GoogleMapReact>
 
-        <PinModal
+        <PinFormModal
           isShown={isShown}
           hide={toggle}
           createPin={createPin}
+          clearPins={clearPins}
+        />
+
+        <PinInfoModal
+          pinInfoModal={pinInfoModal}
         />
       </div>
 

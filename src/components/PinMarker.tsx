@@ -1,18 +1,19 @@
 import React from "react";
+import { IPin } from "../models/pins";
 
-export const PinMarker = ({
-  lat,
-  lng,
-  text,
-}: {
-  lat: number;
-  lng: number;
-  text: string;
-}) => {
+export const PinMarker = ( pin : any ) => {
+
+  const clickHandler = () => {
+    console.log("clicked!", pin)
+  }
+
   return (
-    <div className="pin-marker">
+    <div
+      className="pin-marker"
+      onClick={clickHandler}
+    >
       <div className="arrow"/>
-      {text}
+      {pin.text}
     </div>
   );
 };
