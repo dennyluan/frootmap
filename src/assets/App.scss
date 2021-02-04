@@ -76,6 +76,23 @@
 }
 
 
+.cluster-marker {
+  color: black;
+  background: white;
+  font-weight: 600;
+  padding: 13px;
+  font-size: 15px;
+  border: 2px solid black;
+  display: inline-flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  top: 0px;
+  position: relative;
+}
+
+
 .arrow {
  /* Position at the bottom center */
   bottom: -11px;

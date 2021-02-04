@@ -1,14 +1,15 @@
 import React from "react";
 import { IPin } from "../models/pins";
 
-export const PinMarker = ( pin : any ) => {
+const PinMarker = ( pin : any ) => {
 
   const clickHandler = () => {
-    console.log("clicked!", pin)
+    pin.onClick()
   }
 
   return (
     <div
+      style={pin.style}
       className="pin-marker"
       onClick={clickHandler}
     >
@@ -17,3 +18,5 @@ export const PinMarker = ( pin : any ) => {
     </div>
   );
 };
+
+export default PinMarker

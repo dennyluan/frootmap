@@ -4,9 +4,7 @@ import Modal, { Styles } from "react-modal";
 
 Modal.setAppElement("#root");
 
-export const PinInfoModal = ( modalProps: any ) => {
-
-  console.log('modalProps', modalProps)
+const PinInfoModal = ( modalProps: any ) => {
 
   let open = false
 
@@ -21,3 +19,5 @@ export const PinInfoModal = ( modalProps: any ) => {
     <h1>hi</h1>
   </Modal>
 }
+
+export default PinInfoModal

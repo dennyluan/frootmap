@@ -7,5 +7,7 @@ export interface ICoords {
 export interface IPin {
   id: string,
   text: string,
+  public?: boolean,
+
   coords: ICoords
 }

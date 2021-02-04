@@ -4,9 +4,12 @@ import Modal, { Styles } from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimesCircle } from "@fortawesome/free-solid-svg-icons";
 
+import { useDispatch } from "react-redux";
+import { setMap } from "features/mapSlice";
+
 Modal.setAppElement("#root");
 
-export const PinFormModal = (modalProps: {
+const PinFormModal = (modalProps: {
   isShown: boolean;
   hide: any;
   createPin: any;
@@ -14,6 +17,8 @@ export const PinFormModal = (modalProps: {
 }) => {
   const [fruit, setFruit] = useState<string>("");
   const [error, setError] = useState<string>("");
+
+  const dispatch = useDispatch()
 
   const FRUITS = [
     "Mango",
@@ -102,6 +107,13 @@ export const PinFormModal = (modalProps: {
             <div className="modal-footer">
               <button
                 className="btn btn-danger ml-3"
+                onClick={()=>dispatch(setMap({lat: 47.608013, lng: -122.335167}))}
+              >
+                Go to Seattle
+              </button>
+
+              <button
+                className="btn btn-danger ml-3"
                 onClick={modalProps.clearPins}
               >
                 Clear pins
@@ -128,3 +140,5 @@ export const PinFormModal = (modalProps: {
     </div>
   );
 };
+
+export default PinFormModal
