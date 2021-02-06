@@ -15,19 +15,8 @@ const mapSlice = createSlice({
   reducers: {
     setMap: {
       reducer(state, action) {
-        console.log(">>>>> setmap:", action)
-
-        const { lat, lng, zoom } = action.payload
-        state = {
-          map: {
-            center: {
-              lat: lat,
-              lng: lng,
-            },
-            zoom: zoom,
-          }
-        }
-
+        const { lat, lng, zoom, map } = action.payload
+        map.panTo({lat: lat, lng: lng})
       },
     }
   }

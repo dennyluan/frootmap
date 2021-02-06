@@ -11,3 +11,16 @@ export interface IPin {
 
   coords: ICoords
 }
+
+export interface IPoint {
+  type: string,
+  properties: {
+    cluster: boolean,
+    pinId: string,
+    text: string
+  },
+  geometry: {
+    type: string,
+    coordinates: number[]
+  }
+}

@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from "react";
-import ReactDOM from "react-dom";
+import { connect } from 'react-redux'
+
 import Modal, { Styles } from "react-modal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimesCircle } from "@fortawesome/free-solid-svg-icons";
-
 import { useDispatch } from "react-redux";
-import { setMap } from "features/mapSlice";
+
+import { ICoords } from "../models/pins";
+import { createPin } from "../features/pinSlice";
+import { setMap } from "../features/mapSlice";
 
 Modal.setAppElement("#root");
 
-const PinFormModal = (modalProps: {
-  isShown: boolean;
-  hide: any;
-  createPin: any;
-  clearPins: () =>  void;
-}) => {
+interface IPinModalProps {
+  isShown: boolean,
+  modalPinCoords: ICoords,
+  mapRef: any,
+  hide: () => void,
+  clearPins: () => void
+}
+
+const PinFormModal = (props: IPinModalProps) => {
   const [fruit, setFruit] = useState<string>("");
   const [error, setError] = useState<string>("");
 
@@ -34,8 +40,8 @@ const PinFormModal = (modalProps: {
 
   // const onKeyDown = (event: Event;) => {
   //   console.log('event', event)
-  //   if (event.keyCode === 27 && modalProps.isShown) {
-  //     modalProps.hide();
+  //   if (event.keyCode === 27 && isShown) {
+  //     hide();
   //   }
   // };
 
@@ -44,7 +50,7 @@ const PinFormModal = (modalProps: {
   //   return () => {
   //     document.removeEventListener('keydown', onKeyDown, false);
   //   };
-  // }, [modalProps.isShown]);
+  // }, [isShown]);
 
   function renderFruits() {
     return FRUITS.map((f, i) => {
@@ -66,12 +72,19 @@ const PinFormModal = (modalProps: {
   function handleClose() {
     setFruit("");
     setError("");
-    modalProps.hide();
+    props.hide();
   }
 
   function handleClick() {
     if (fruit) {
-      modalProps.createPin(fruit);
+      // createPin(fruit);
+
+      const payload = {
+        pinCoords: props.modalPinCoords,
+        text: fruit
+      }
+      dispatch(createPin(payload))
+
       handleClose();
     } else {
       setError("Please select a fruit!");
@@ -81,7 +94,7 @@ const PinFormModal = (modalProps: {
   return (
     <div>
       <Modal
-        isOpen={modalProps.isShown}
+        isOpen={props.isShown}
         className="modal modal.shown animate__animated animate__slideInUp animate__faster"
         contentLabel="Create a pin modal"
         onRequestClose={() => handleClose()}
@@ -93,11 +106,18 @@ const PinFormModal = (modalProps: {
               <h5 className="modal-title">Choose a fruit:</h5>
               <FontAwesomeIcon
                 icon={faTimesCircle}
-                onClick={modalProps.hide}
+                onClick={props.hide}
                 aria-label="Close"
                 className="btn-close"
               />
+              <br/>
+              <p className="muted">
+                Coordinates:
+                <span className="mr-3">Lat: {props.modalPinCoords.lat}</span>
+                <span>Lng: {props.modalPinCoords.lng}</span>
+              </p>
             </div>
+
 
             <div className="modal-body">
               {error && <p className="alert alert-danger">{error}</p>}
@@ -105,16 +125,19 @@ const PinFormModal = (modalProps: {
             </div>
 
             <div className="modal-footer">
+
+              {/*
               <button
                 className="btn btn-danger ml-3"
-                onClick={()=>dispatch(setMap({lat: 47.608013, lng: -122.335167}))}
+                onClick={()=>dispatch(setMap({lat: 47.608013, lng: -122.335167, map: mapRef}))}
               >
                 Go to Seattle
               </button>
+              */}
 
               <button
                 className="btn btn-danger ml-3"
-                onClick={modalProps.clearPins}
+                onClick={props.clearPins}
               >
                 Clear pins
               </button>
@@ -142,3 +165,10 @@ const PinFormModal = (modalProps: {
 };
 
 export default PinFormModal
+
+// const mapDispatch = { createPin }
+
+// export default connect(
+//   null,
+//   mapDispatch)
+// (PinFormModal)

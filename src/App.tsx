@@ -1,59 +1,51 @@
 import React, { useEffect, useState, MouseEvent, useRef } from "react";
 import GoogleMapReact from "google-map-react";
-import { v4 as uuidv4 } from 'uuid';
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, connect } from "react-redux";
+import { createSelector } from "@reduxjs/toolkit";
 import useSupercluster from 'use-supercluster';
 
-import PinMarker from "./components/PinMarker";
-import ClusterMarker from "./components/ClusterMarker";
-import PinFormModal from "./components/PinFormModal";
-import PinInfoModal from "./components/PinInfoModal";
-import { ICoords, IPin } from "./models/pins";
-import { useModal, usePinModal } from "./utils/useModal";
+import PinMarker from "components/PinMarker";
+import ClusterMarker from "components/ClusterMarker";
+import PinFormModal from "components/PinFormModal";
+import PinInfoModal from "components/PinInfoModal";
+import { ICoords, IPin, IPoint } from "models/pins";
+import { useModal, usePinModal } from "utils/useModal";
+
+import { loadPins, clearPins, selectPins } from 'features/pinSlice'
+import store from "store";
+
 import "./assets/App.scss";
 
-function App() {
-  let googleKey: string = process.env.REACT_APP_GOOGLE_API_KEY || "";
 
-  const dispatch = useDispatch()
+function App(props: any) {
+  const googleKey: string = process.env.REACT_APP_GOOGLE_API_KEY || "";
+
+  const [ viewCoords, setViewCoords ] = useState<ICoords>({ lat: 21.284084348268202, lng: -157.7855795839304 });
+  const { isShown, toggle, modalPinCoords } = useModal();
+  const { pinInfoModal, setPinInfoModal } = usePinModal();
   const { map } = useSelector( ( state: { map: any } ) => state.map );
-  console.log("state: map", map)
-
-  const initialCoords = {
-    lat: 21.284084348268202,
-    lng: -157.7855795839304,
-  }
-
-
-  let [viewCoords, setViewCoords] = useState<ICoords>(initialCoords);
-  let [pinCoords, setPinCoords] = useState<ICoords>();
-
-  let [pins, setPins] = useState<IPin[]>([]);
-
-  let { isShown, toggle } = useModal();
-  let { pinInfoModal, setPinInfoModal } = usePinModal();
-
-
-  //////==========
   const mapRef = useRef<any>(null);
   const [bounds, setBounds] = useState<any>(null)
   const [zoom, setZoom] = useState<number>(16);
 
-  const points = pins.map( pin => ({
-    "type": "Feature",
-    "properties": {
-      "cluster": false,
-      "pinId": pin.id,
-      "text": pin.text
-    },
-    "geometry": {
-      "type": "Point",
-      "coordinates": [
-        pin.coords.lng,
-        pin.coords.lat
-      ]
-    }
-  }))
+  let points : IPoint[] = []
+  if (props.pins && props.pins.length > 1) {
+    points = props.pins.map( (pin : IPin) => ({
+      "type": "Feature",
+      "properties": {
+        "cluster": false,
+        "pinId": pin.id,
+        "text": pin.text
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          pin.coords.lng,
+          pin.coords.lat
+        ]
+      }
+    }))
+  }
 
   const { clusters, supercluster } = useSupercluster({
     points,
@@ -65,8 +57,7 @@ function App() {
     }
   })
 
-  //////==========
-
+  console.log("props.pins", props.pins)
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -82,46 +73,16 @@ function App() {
       );
     }
 
-    loadPins()
+    // dispatch(loadPins())
+    props.loadPins()
   }, []);
 
-  function loadPins() {
-    let localPins : string = localStorage.getItem('localPins') || '[]'
-
-    let localPinsParsed : IPin[] = JSON.parse(localPins)
-
-    if (localPinsParsed) {
-      let newPins : IPin[] = pins
-      let collected : IPin[] = newPins.concat(localPinsParsed)
-      setPins(collected)
-    }
-  }
-
-  const createPin = (fruit: string) => {
-    if (pinCoords && pinCoords.lat) {
-      let id = uuidv4()
-      let pin : IPin = {
-        coords: {
-          lat: pinCoords.lat,
-          lng: pinCoords.lng,
-        },
-        id: id,
-        text: fruit
-      }
-      const newPins : IPin[] = [...pins, pin] || [pins]
-
-      setPins(newPins);
-      localStorage.setItem('localPins', JSON.stringify(newPins));
-    }
-  }
-
-  const clearPins = () : void => {
-    localStorage.removeItem("localPins")
-    setPins([])
+  const handleClearPins = () : void => {
+    clearPins
     toggle()
   }
 
-  const handleClick = ({
+  const handleMapClick = ({
     x,
     y,
     lat,
@@ -135,10 +96,8 @@ function App() {
     event: MouseEvent<HTMLButtonElement>;
   }): any => {
     event.preventDefault();
-    console.log('mapclick')
-    setPinCoords({lat: lat, lng: lng})
     if (!isShown)
-      toggle()
+      toggle({lat: lat, lng: lng})
   };
 
   function renderMarkers() {
@@ -184,20 +143,18 @@ function App() {
 
       }
     })
-
   }
-
 
   return (
     <div className="App">
 
       <div className="body">
         <GoogleMapReact
+          yesIWantToUseGoogleMapApiInternals
           bootstrapURLKeys={{ key: googleKey }}
           center={map.center}
           zoom={map.zoom}
-          onClick={handleClick}
-          yesIWantToUseGoogleMapApiInternals
+          onClick={handleMapClick}
           onGoogleApiLoaded={({map}) => {
             mapRef.current = map;
           }}
@@ -216,9 +173,10 @@ function App() {
 
         <PinFormModal
           isShown={isShown}
+          modalPinCoords={modalPinCoords}
           hide={toggle}
-          createPin={createPin}
-          clearPins={clearPins}
+          clearPins={handleClearPins}
+          mapRef={mapRef.current}
         />
 
         <PinInfoModal
@@ -230,4 +188,19 @@ function App() {
   );
 }
 
-export default App;
+const mapStateToPropsSelector = createSelector(
+  ( state: {pins: IPin[]} ) => state.pins,
+  pins => pins
+)
+
+const mapStateToProps = (state: any) => ({
+  pins: mapStateToPropsSelector(state)
+})
+
+const mapDispatchToProps = { loadPins, clearPins }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App)
+

@@ -110,3 +110,13 @@
   width: 10px;
 }
 
+.gmnoprint,
+.gm-control-active,
+.gm-fullscreen-control {
+  display: none !important;
+}
+
+a[title="Report errors in the road map or imagery to Google"],
+img[src="https://maps.gstatic.com/mapfiles/api-3/images/google_white5.png"] {
+  display: none !important;
+}
