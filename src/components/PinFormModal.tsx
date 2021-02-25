@@ -22,6 +22,7 @@ interface IPinModalProps {
 
 const PinFormModal = (props: IPinModalProps) => {
   const [fruit, setFruit] = useState<string>("");
+  const [titleInput, setTitleInput] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   const dispatch = useDispatch()
@@ -72,16 +73,18 @@ const PinFormModal = (props: IPinModalProps) => {
   function handleClose() {
     setFruit("");
     setError("");
+    setTitleInput("");
     props.hide();
   }
 
   function handleClick() {
-    if (fruit) {
+    let value = fruit || titleInput || null
+    if (value) {
       // createPin(fruit);
 
       const payload = {
         pinCoords: props.modalPinCoords,
-        text: fruit
+        text: value
       }
       dispatch(createPin(payload))
 
@@ -89,6 +92,11 @@ const PinFormModal = (props: IPinModalProps) => {
     } else {
       setError("Please select a fruit!");
     }
+  }
+
+  function handleInputChange(event: any) {
+    setTitleInput(event.target.value);
+    setFruit("");
   }
 
   return (
@@ -121,7 +129,25 @@ const PinFormModal = (props: IPinModalProps) => {
 
             <div className="modal-body">
               {error && <p className="alert alert-danger">{error}</p>}
+
+              <div className="input-group input-group-lg mb-3">
+                <div className="input-group-prepend">
+                  <span className="input-group-text" id="inputGroup-sizing-lg">
+                    What kind of fruit?
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  className="form-control"
+                  aria-label="Fruit Name"
+                  placeholder="Add a fruit..."
+                  value={titleInput}
+                  onChange={handleInputChange}
+                />
+              </div>
+
               {renderFruits()}
+
             </div>
 
             <div className="modal-footer">

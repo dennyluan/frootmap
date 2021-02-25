@@ -2,23 +2,7 @@ import { createSlice, createSelector, PayloadAction } from "@reduxjs/toolkit";
 import { ICoords, IPin } from "models/pins";
 import { v4 as uuidv4 } from 'uuid';
 
-// const createPin = (fruit: string) => {
-//   if (pinCoords && pinCoords.lat) {
-//     let id = uuidv4()
-//     let pin : IPin = {
-//       coords: {
-//         lat: pinCoords.lat,
-//         lng: pinCoords.lng,
-//       },
-//       id: id,
-//       text: fruit
-//     }
-//     const newPins : IPin[] = [...pins, pin] || [pins]
-
-//     setPins(newPins);
-//     localStorage.setItem('localPins', JSON.stringify(newPins));
-//   }
-// }
+import find from 'lodash/find'
 
 const newPin = (pinCoords : ICoords, text : string) => {
   const id = uuidv4()
@@ -46,6 +30,8 @@ const pinSlice = createSlice({
       const localPins : string = localStorage.getItem('localPins') || '[]'
       const localPinsParsed : IPin[] = JSON.parse(localPins)
 
+      console.log("loading pins", localPinsParsed)
+
       if (localPinsParsed) {
         const newPins : IPin[] = []
         const collected : IPin[] = newPins.concat(localPinsParsed)
@@ -53,9 +39,11 @@ const pinSlice = createSlice({
       } else {
         return []
       }
+
     },
 
     fetchAllPins(state, action) {
+      // tbd
       return action.payload.pins
     },
 
@@ -67,8 +55,24 @@ const pinSlice = createSlice({
     },
 
     clearPins(state) {
-      localStorage.removeItem("localPins")
+      console.log(">>>>>>> clearing pins", state)
+      console.log(">>>>> selectPins", pinsSelector(state))
+      // localStorage.removeItem("localPins")
       return []
+    },
+
+    deletePin(state: any, action: PayloadAction<any>) {
+      // console.log(">>>>>!", action.payload)
+      // console.log("state", find(state, function(p){p.id = pin.id}))
+      // console.log("pinsSelector", pinsSelector(state))
+      const newState = state.filter((pin : any) => pin.id !== action.payload )
+      localStorage.setItem('localPins', JSON.stringify(newState))
+      return newState
+
+      // console.log("state", state)
+
+      // return state
+
     }
   }
 })
@@ -80,6 +84,12 @@ export const selectPins : any = createSelector(
   pins => pins
 )
 
-export const { loadPins, fetchAllPins, createPin, clearPins } = pinSlice.actions
+export const {
+  loadPins,
+  fetchAllPins,
+  createPin,
+  clearPins,
+  deletePin
+} = pinSlice.actions
 
 export default pinSlice.reducer

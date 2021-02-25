@@ -1,20 +1,31 @@
 import React from "react";
 import { IPin } from "../models/pins";
 
-const PinMarker = ( pin : any ) => {
+interface PinMarkerProps {
+  pin?: IPin,
+  style?: any,
+  onClick: () => void,
+  id: any,
+  text: any,
+  lat: string,
+  lng: string
+}
+
+const PinMarker = ( props: PinMarkerProps ) => {
 
   const clickHandler = () => {
-    pin.onClick()
+    props.onClick()
+    // console.log("clicked on pin")
   }
 
   return (
     <div
-      style={pin.style}
+      style={props.style}
       className="pin-marker"
       onClick={clickHandler}
     >
       <div className="arrow"/>
-      {pin.text}
+      {props.text}
     </div>
   );
 };

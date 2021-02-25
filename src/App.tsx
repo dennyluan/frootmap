@@ -7,9 +7,9 @@ import useSupercluster from 'use-supercluster';
 import PinMarker from "components/PinMarker";
 import ClusterMarker from "components/ClusterMarker";
 import PinFormModal from "components/PinFormModal";
-import PinInfoModal from "components/PinInfoModal";
+import PinModal from "components/PinModal";
 import { ICoords, IPin, IPoint } from "models/pins";
-import { useModal, usePinModal } from "utils/useModal";
+import { useFormModal, usePinModal } from "utils/useModal";
 
 import { loadPins, clearPins, selectPins } from 'features/pinSlice'
 import store from "store";
@@ -21,8 +21,8 @@ function App(props: any) {
   const googleKey: string = process.env.REACT_APP_GOOGLE_API_KEY || "";
 
   const [ viewCoords, setViewCoords ] = useState<ICoords>({ lat: 21.284084348268202, lng: -157.7855795839304 });
-  const { isShown, toggle, modalPinCoords } = useModal();
-  const { pinInfoModal, setPinInfoModal } = usePinModal();
+  const { isShown, toggle, modalPinCoords } = useFormModal();
+  const { activePin, setPinModal } = usePinModal();
   const { map } = useSelector( ( state: { map: any } ) => state.map );
   const mapRef = useRef<any>(null);
   const [bounds, setBounds] = useState<any>(null)
@@ -30,6 +30,7 @@ function App(props: any) {
 
   let points : IPoint[] = []
   if (props.pins && props.pins.length > 1) {
+
     points = props.pins.map( (pin : IPin) => ({
       "type": "Feature",
       "properties": {
@@ -78,8 +79,8 @@ function App(props: any) {
   }, []);
 
   const handleClearPins = () : void => {
-    clearPins
-    toggle()
+    props.clearPins()
+    // toggle()
   }
 
   const handleMapClick = ({
@@ -137,7 +138,13 @@ function App(props: any) {
           lng={lng}
           text={text}
           onClick={()=>{
-            console.log("clicked!")
+            let thepin : IPin = {
+              id: cluster.properties.pinId,
+              text: cluster.properties.text,
+              coords: cluster.geometry.coordinates
+            }
+            setPinModal(thepin)
+            // console.log("clicked on!", cluster.properties)
           }}
         />
 
@@ -179,8 +186,9 @@ function App(props: any) {
           mapRef={mapRef.current}
         />
 
-        <PinInfoModal
-          pinInfoModal={pinInfoModal}
+        <PinModal
+          pin={activePin}
+          hide={setPinModal}
         />
       </div>
 

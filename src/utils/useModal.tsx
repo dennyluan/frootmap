@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ICoords, IPin } from "../models/pins";
 
-export const useModal = () => {
+export const useFormModal = () => {
   const [isShown, setIsShown] = useState<boolean>(false);
   const [modalPinCoords, setModalPinCoords] = useState<ICoords>({lat: 0, lng: 0});
 
@@ -18,9 +18,9 @@ export const useModal = () => {
 };
 
 export const usePinModal = () => {
-  const [pinInfoModal, setIsShown] = useState<IPin | {}>();
+  const [activePin, setIsShown] = useState<IPin | {}>();
 
-  const setPinInfoModal = ( pin: IPin ) => {
+  const setPinModal = ( pin?: IPin ) => {
     if (pin) {
       setIsShown(pin);
     } else {
@@ -29,7 +29,7 @@ export const usePinModal = () => {
   }
 
   return {
-    pinInfoModal,
-    setPinInfoModal,
+    activePin,
+    setPinModal,
   };
 };
